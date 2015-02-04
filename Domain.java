@@ -35,14 +35,18 @@ public class Domain {
             for (int i=0; i<d.size(); i++) {
                 for (int j=0; j<d.get(i).size(); j++) {
                     /*System.out.print(d.get(i).get(j).color);*/
-                    System.out.print(color[d.get(i).get(j).color] + d.get(i).get(j).power + color[0]);
+                    System.out.print(color[d.get(i).get(j).color] + d.get(i).get(j).power + color[7]);
                 }
                 System.out.println();
             }
         } else if (flag == 2) {
             for (int i=0; i<d.size(); i++) {
                 for (int j=0; j<d.get(i).size(); j++) {
-                    System.out.print(event[gridEventMap.get(d.get(i).get(j)).eve]);
+                    if (d.get(i).get(j).color == 0) {
+                        System.out.print(".");
+                    } else {
+                        System.out.print(event[gridEventMap.get(d.get(i).get(j)).eve]);
+                    }
                 }
                 System.out.println();
             }
@@ -65,12 +69,15 @@ public class Domain {
     public void init(int n, int m) {
         eventQueue = new PriorityQueue<Event>(n * m, new Comparator<Event>(){
             public int compare(Event e1, Event e2) {
+                if (e1.getGrids().get(0).color == 0) return 1;
+                if (e2.getGrids().get(0).color == 0) return -1;
                 return (int)e2.getPoss() - (int)e1.getPoss();
             }
         });
         gridEventMap = new HashMap<Grid, Event>();
         for (int i=0; i<n; i++) {
             for (int j=0; j<m; j++) {
+                /*if (d.get(i).get(j).color == 0) continue;*/
                 Event e = new Event(d, i, j);
                 gridEventMap.put(d.get(i).get(j), e);
                 eventQueue.add(e);
@@ -78,6 +85,17 @@ public class Domain {
         }
     }
 
+    // Every time frame, an event with highest possibility occurs.
     public void emulate() {
+        Event e = eventQueue.poll();
+        System.out.println(e.row + " " + e.col);
+        e.occurs();
+        List<Grid> grids = e.getGrids();
+        for (int i=0; i<grids.size(); i++) {
+            if (grids.get(i).color == 0) continue;
+            eventQueue.remove(gridEventMap.get(grids.get(i)));
+            gridEventMap.get(grids.get(i)).setPoss();
+            eventQueue.add(gridEventMap.get(grids.get(i)));
+        }
     }
 }
