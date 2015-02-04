@@ -69,8 +69,8 @@ public class Domain {
     public void init(int n, int m) {
         eventQueue = new PriorityQueue<Event>(n * m, new Comparator<Event>(){
             public int compare(Event e1, Event e2) {
-                if (e1.getGrids().get(0).color == 0) return 1;
-                if (e2.getGrids().get(0).color == 0) return -1;
+                if (e1.eve == 3) return 1;
+                if (e2.eve == 3) return -1;
                 return (int)e2.getPoss() - (int)e1.getPoss();
             }
         });

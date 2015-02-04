@@ -17,7 +17,7 @@ public class Event {
     public List<Grid> grids;
 
     private final double warCoe = 1.0;
-    private final double devCoe = 5.0;
+    private final double devCoe = 3.0;
     private final double expCoe = 1.0;
     private final double warMaxPoss = (9);
     private final double devMaxPoss = (4*9)+9;
@@ -40,6 +40,7 @@ public class Event {
 
     public void setPoss() {
         if (grids.get(0).color == 0) {
+			eve = 3;
             return;
         }
         for (int i=1; i<grids.size(); i++) {
@@ -69,10 +70,13 @@ public class Event {
                 maxPoss = poss[i];
             }
         }
+		if (eve == 1 && grids.get(0).power == 9) eve = 3;
     }
 
     public void occurs() {
-        if (grids.get(0).color == 0) return;
+        if (grids.get(0).color == 0) {
+			return;
+        }
         switch (eve) {
             case 0: // war
                 for (int i=0; i<grids.size(); i++) {
@@ -82,7 +86,7 @@ public class Event {
                         grids.get(i).power -= (casualty>grids.get(i).power ? grids.get(i).power : casualty);
                         if (grids.get(i).power <= 0) {
                             grids.get(i).power = 0;
-                            grids.get(i).color = 0;
+                            grids.get(i).set(0, -1);
                         }
                         break;
                     }
@@ -106,7 +110,7 @@ public class Event {
                         grids.get(i).power -= (casualty>grids.get(i).power ? grids.get(i).power : casualty);
                         if (grids.get(i).power <= 0) {
                             grids.get(i).power = 0;
-                            grids.get(i).color = grids.get(0).color;
+                            grids.get(i).set(grids.get(0).color, -1);
                         }
                         break;
                     }
