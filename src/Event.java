@@ -116,8 +116,9 @@ public class Event {
         }
     }
 
-    public double getPoss() {
-        return poss[eve];
+    // Return possibility in integer with two decimal accuracy kept.
+    public int getPoss() {
+        return (int)(poss[eve] * 100);
     }
 
     public List<Grid> getGrids() {

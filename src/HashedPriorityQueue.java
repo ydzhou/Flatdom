@@ -118,4 +118,8 @@ public class HashedPriorityQueue<E> {
     public boolean isEmpty() {
         return size == 0;
     }
+
+    public List<E> getHeap() {
+        return heap;
+    }
 }

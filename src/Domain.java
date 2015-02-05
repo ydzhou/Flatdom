@@ -67,9 +67,7 @@ public class Domain {
         
         eventQueue = new HashedPriorityQueue<Event>(new Comparator<Event>(){
             public int compare(Event e1, Event e2) {
-                if (e1.eve == 3) return 1;
-                if (e2.eve == 3) return -1;
-                return (int)e2.getPoss() - (int)e1.getPoss();
+                return e2.getPoss() - e1.getPoss();
             }
         });
 
@@ -82,6 +80,12 @@ public class Domain {
                 eventQueue.add(e);
             }
         }
+
+        List<Event> tmp = eventQueue.getHeap();
+        for (int i=1; i<tmp.size(); i++) {
+            System.out.print(tmp.get(i).getPoss() + " ");
+        }
+        System.out.println();
     }
 
     // Every time frame, an event with highest possibility occurs.
@@ -90,6 +94,11 @@ public class Domain {
         // If the event with highest possibility is stay, then the domain remain stable.
         if (e.eve == 3) return false;
         System.out.println(e.row + " " + e.col + " " + event[e.eve]);
+        /*List<Event> tmp = eventQueue.getHeap();*/
+        /*for (int i=1; i<tmp.size(); i++) {*/
+        /*    System.out.print(tmp.get(i).getPoss() + " ");*/
+        /*}*/
+        /*System.out.println();*/
         e.occurs();
         List<Grid> grids = e.getGrids();
         for (int i=0; i<grids.size(); i++) {
