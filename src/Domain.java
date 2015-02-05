@@ -13,7 +13,7 @@ public class Domain {
     private final char[] event = {'w', 'd', 'e', '.'};
     private List<List<Grid>> d;
 
-    private PriorityQueue<Event> eventQueue;
+    private HashedPriorityQueue<Event> eventQueue;
     private HashMap<Grid, Event> gridEventMap;
 
     public Domain(int n, int m, int maxC, int maxP) {
@@ -55,6 +55,7 @@ public class Domain {
             }
             d.add(tmp);
         }
+        
         /*List<Grid> tmp = new ArrayList<Grid>();*/
         /*tmp.add(new Grid(1, 0));*/
         /*tmp.add(new Grid(1, 5));*/
@@ -63,13 +64,15 @@ public class Domain {
         /*tmp.add(new Grid(2, 3));*/
         /*tmp.add(new Grid(2, 3));*/
         /*d.add(tmp);*/
-        eventQueue = new PriorityQueue<Event>(n * m, new Comparator<Event>(){
+        
+        eventQueue = new HashedPriorityQueue<Event>(new Comparator<Event>(){
             public int compare(Event e1, Event e2) {
                 if (e1.eve == 3) return 1;
                 if (e2.eve == 3) return -1;
                 return (int)e2.getPoss() - (int)e1.getPoss();
             }
         });
+
         gridEventMap = new HashMap<Grid, Event>();
         for (int i=0; i<n; i++) {
             for (int j=0; j<m; j++) {
@@ -83,7 +86,7 @@ public class Domain {
 
     // Every time frame, an event with highest possibility occurs.
     public boolean emulate() {
-        Event e = eventQueue.poll();
+        Event e = eventQueue.peek();
         // If the event with highest possibility is stay, then the domain remain stable.
         if (e.eve == 3) return false;
         System.out.println(e.row + " " + e.col + " " + event[e.eve]);
@@ -91,9 +94,8 @@ public class Domain {
         List<Grid> grids = e.getGrids();
         for (int i=0; i<grids.size(); i++) {
             if (grids.get(i).color == 0) continue;
-            eventQueue.remove(gridEventMap.get(grids.get(i)));
             gridEventMap.get(grids.get(i)).setPoss();
-            eventQueue.add(gridEventMap.get(grids.get(i)));
+            eventQueue.update(gridEventMap.get(grids.get(i)));
         }
         return true;
     }
