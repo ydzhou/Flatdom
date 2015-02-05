@@ -12,22 +12,21 @@ import java.util.*;
 public class Event {
     public int row, col, eve;
     public double[] poss = new double[4];
-    public int[] power = {9, 0, 9};
+    public int[] power = new int[3];
     public int[] count = new int[3];
     public List<Grid> grids;
 
     private final double warCoe = 1.0;
-    private final double devCoe = 3.0;
+    private final double devCoe = 2.0;
     private final double expCoe = 1.0;
-    private final double warMaxPoss = (9);
-    private final double devMaxPoss = (4*9)+9;
-    private final double expMaxPoss = 9;
+    private final double warMaxPower = (9);
+    private final double devMaxPower = (4*9)+9;
+    private final double expMaxPower= 9;
     private final double devIncCoe = 0.25;
 
     public Event(List<List<Grid>> d, int r, int c) {
         row = r;
         col = c;
-        eve = 3;
         grids = new ArrayList<Grid>();
         grids.add(d.get(row).get(col));
         // Add all the grids related to current event
@@ -39,30 +38,35 @@ public class Event {
     }
 
     public void setPoss() {
-        if (grids.get(0).color == 0) {
-			eve = 3;
-            return;
-        }
+        eve = 3;
+        if (grids.get(0).color == 0) return;
+        power[0] = 9; power[1] = 0; power[2] = 9;
+        count[0] = -1; count[1] = 0; count[2] = -1;
+        poss[0] = -1; poss[1] = -1; poss[2] = -1;
         for (int i=1; i<grids.size(); i++) {
             if (grids.get(i).color == grids.get(0).color) {
                 power[1] += grids.get(i).power;
                 count[1]++;
             } else if (grids.get(i).color == 0) {
-                power[2] = Math.min(power[2], grids.get(i).power);
-                count[2]++;
+                if (power[2] > grids.get(i).power) {
+                    power[2] = grids.get(i).power;
+                    count[2] = i;
+                }
             } else {
-                power[0] = Math.min(power[0], grids.get(i).power);
-                count[0]++;
+                if (power[0] > grids.get(i).power) {
+                    power[0] = grids.get(i).power;
+                    count[0] = i;
+                }
             }
         }      
         // Calculate possibility of each action 
         // war possibility: abs(diffPower - selfPower)
-        if (count[0] != 0) poss[0] = (grids.get(0).power - power[0]) / warMaxPoss * warCoe;
+        /*System.out.println(row+ " "+col+": "+count[0]+" "+count[1]+" "+count[2]+" ");*/
+        if (count[0] != -1) poss[0] = (grids.get(0).power - power[0]) / warMaxPower * warCoe;
         // develop possibility: (samePower + selfPower)
-        if (count[1] != 0) poss[1] = (grids.get(0).power + power[1]) / devMaxPoss * devCoe;
+        if (count[1] != 0 && grids.get(0).power < 9) poss[1] = (grids.get(0).power + power[1]) / devMaxPower * devCoe;
         // explore possibility: (selfPower - neutPower)
-        if (count[2] != 0) poss[2] = (grids.get(0).power - power[2]) / expMaxPoss * expCoe;
-        /*System.out.println(row+ " "+col+" "+poss[0]+" "+poss[1]+" "+poss[2]);*/
+        if (count[2] != -1) poss[2] = (grids.get(0).power - power[2]) / expMaxPower * expCoe;
         double maxPoss = -1;
         for (int i=0; i<poss.length; i++) {
             if (maxPoss <= poss[i]) {
@@ -70,54 +74,44 @@ public class Event {
                 maxPoss = poss[i];
             }
         }
-		if (eve == 1 && grids.get(0).power == 9) eve = 3;
+        /*System.out.println(row+ " "+col+" "+eve+": "+poss[0]+" "+poss[1]+" "+poss[2]);*/
     }
 
     public void occurs() {
-        if (grids.get(0).color == 0) {
-			return;
-        }
+        if (grids.get(0).color == 0) return;
+        int i, casualty;
         switch (eve) {
             case 0: // war
-                for (int i=0; i<grids.size(); i++) {
-                    if (grids.get(i).power == power[0]) {
-                        int casualty = grids.get(0).power - grids.get(i).power;
-                        grids.get(0).power -= (casualty>grids.get(i).power ? grids.get(i).power : casualty) + 1;
-                        grids.get(i).power -= (casualty>grids.get(i).power ? grids.get(i).power : casualty);
-                        if (grids.get(i).power <= 0) {
-                            grids.get(i).power = 0;
-                            grids.get(i).set(0, -1);
-                        }
-                        break;
-                    }
+                i = count[0];
+                casualty = grids.get(0).power - grids.get(i).power;
+                grids.get(0).power -= ((casualty>grids.get(i).power ? grids.get(i).power : casualty) + 2);
+                grids.get(i).power -= (casualty>grids.get(i).power ? grids.get(i).power : casualty);
+                if (grids.get(i).power <= 0) {
+                    grids.get(i).power = 0;
+                    grids.get(i).set(0, -1);
                 }
                 break;
             case 1: // develop
-                for (int i=0; i<grids.size(); i++) {
-                    if (grids.get(i).color == grids.get(0).color) {
-                        grids.get(i).power += (i==0 ? (int)((power[1] + grids.get(i).power)*devIncCoe)+1 : 1);
+                for (int j=0; j<grids.size(); j++) {
+                    if (grids.get(j).color == grids.get(0).color) {
+                        grids.get(j).power += (j==0 ? (int)((power[1] + grids.get(j).power)*devIncCoe)+1 : 1);
                     }
-                    if (grids.get(i).power > 9) {
-                        grids.get(i).power = 9;
+                    if (grids.get(j).power > 9) {
+                        grids.get(j).power = 9;
                     }
                 }
                 break;
             case 2: // explore
-                for (int i=0; i<grids.size(); i++) {
-                    if (grids.get(i).power == power[2]) {
-                        int casualty = grids.get(0).power - grids.get(i).power;
-                        grids.get(0).power -= (casualty>grids.get(i).power ? grids.get(i).power : casualty) - 1;
-                        grids.get(i).power -= (casualty>grids.get(i).power ? grids.get(i).power : casualty);
-                        if (grids.get(i).power <= 0) {
-                            grids.get(i).power = 0;
-                            grids.get(i).set(grids.get(0).color, -1);
-                        }
-                        break;
-                    }
+                i = count[2];
+                casualty = grids.get(0).power - grids.get(i).power;
+                grids.get(0).power -= (casualty>grids.get(i).power ? grids.get(i).power : casualty) + 1;
+                grids.get(i).power -= (casualty>grids.get(i).power ? grids.get(i).power : casualty);
+                if (grids.get(i).power <= 0) {
+                    grids.get(i).power = 0;
+                    grids.get(i).set(grids.get(0).color, -1);
                 }
                 break;
             case 3: // stay
-                grids.get(0).power++;
                 break;
         }
     }

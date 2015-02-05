@@ -8,7 +8,7 @@ import java.util.*;
 
 public class Domain {
 
-    // Array of colors, 0: RESET, 1: WHITE, 2: RED, 3: GREEN, 4: YELLOW, 5: BLUE, 6: PURPLE, 7: CYAN
+    // Array of colors, 1: WHITE, 2: RED, 3: GREEN, 4: YELLOW, 5: BLUE, 6: PURPLE, 7: CYAN, 8: RESET
     private final String[] color = {"\u001B[37m", "\u001B[31m", "\u001B[32m", "\u001B[33m", "\u001B[34m", "\u001B[35m", "\u001B[36m", "\u001B[0m"};
     private final char[] event = {'w', 'd', 'e', '.'};
     private List<List<Grid>> d;
@@ -17,39 +17,18 @@ public class Domain {
     private HashMap<Grid, Event> gridEventMap;
 
     public Domain(int n, int m, int maxC, int maxP) {
-        d = new ArrayList<List<Grid>>();
-        Random rand = new Random();
-        for (int i=0; i<n; i++) {
-            List<Grid> tmp = new ArrayList<Grid>();
-            for (int j=0; j<m; j++) {
-                tmp.add(new Grid(rand.nextInt(maxC+1), rand.nextInt(maxP+1)));
-            }
-            d.add(tmp);
-        }
-        init(n, m);
+        init(n, m, maxC, maxP);
     }
 
-    // flag: 1. print grid; 2. print event
-    public void print(int flag) {
-        if (flag == 1) {
-            for (int i=0; i<d.size(); i++) {
-                for (int j=0; j<d.get(i).size(); j++) {
-                    /*System.out.print(d.get(i).get(j).color);*/
-                    System.out.print(color[d.get(i).get(j).color] + d.get(i).get(j).power + color[7]);
-                }
-                System.out.println();
+    public void print() {
+        for (int i=0; i<d.size(); i++) {
+            String g = "";
+            String e = "";
+            for (int j=0; j<d.get(i).size(); j++) {
+                g += (color[d.get(i).get(j).color] + d.get(i).get(j).power + color[7]);
+                e += event[gridEventMap.get(d.get(i).get(j)).eve];
             }
-        } else if (flag == 2) {
-            for (int i=0; i<d.size(); i++) {
-                for (int j=0; j<d.get(i).size(); j++) {
-                    if (d.get(i).get(j).color == 0) {
-                        System.out.print(".");
-                    } else {
-                        System.out.print(event[gridEventMap.get(d.get(i).get(j)).eve]);
-                    }
-                }
-                System.out.println();
-            }
+            System.out.println(g + "    " + e);
         }
         System.out.println();
     }
@@ -66,7 +45,24 @@ public class Domain {
      * Algorithm:
      * Every time frame, the event with highest possibility occurs.
      */
-    public void init(int n, int m) {
+    public void init(int n, int m, int maxC, int maxP) {
+        d = new ArrayList<List<Grid>>();
+        Random rand = new Random();
+        for (int i=0; i<n; i++) {
+            List<Grid> tmp = new ArrayList<Grid>();
+            for (int j=0; j<m; j++) {
+                tmp.add(new Grid(rand.nextInt(maxC+1), rand.nextInt(maxP+1)));
+            }
+            d.add(tmp);
+        }
+        /*List<Grid> tmp = new ArrayList<Grid>();*/
+        /*tmp.add(new Grid(1, 0));*/
+        /*tmp.add(new Grid(1, 5));*/
+        /*d.add(tmp);*/
+        /*tmp = new ArrayList<Grid>();*/
+        /*tmp.add(new Grid(2, 3));*/
+        /*tmp.add(new Grid(2, 3));*/
+        /*d.add(tmp);*/
         eventQueue = new PriorityQueue<Event>(n * m, new Comparator<Event>(){
             public int compare(Event e1, Event e2) {
                 if (e1.eve == 3) return 1;
@@ -86,9 +82,11 @@ public class Domain {
     }
 
     // Every time frame, an event with highest possibility occurs.
-    public void emulate() {
+    public boolean emulate() {
         Event e = eventQueue.poll();
-        System.out.println(e.row + " " + e.col);
+        // If the event with highest possibility is stay, then the domain remain stable.
+        if (e.eve == 3) return false;
+        System.out.println(e.row + " " + e.col + " " + event[e.eve]);
         e.occurs();
         List<Grid> grids = e.getGrids();
         for (int i=0; i<grids.size(); i++) {
@@ -97,5 +95,6 @@ public class Domain {
             gridEventMap.get(grids.get(i)).setPoss();
             eventQueue.add(gridEventMap.get(grids.get(i)));
         }
+        return true;
     }
 }

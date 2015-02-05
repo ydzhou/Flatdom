@@ -8,16 +8,28 @@ import java.util.*;
 
 public class Flatdom {
 
-    private final static int maxTime = 3;
-
     public static void main(String[] args) {
-        Domain d = new Domain(4, 4, 2, 9);
-        for (int t = 0; t < maxTime; t++) {
+        if (args.length != 5) {
+            System.out.println("usage: java Flatdom n m maxC maxP maxT");
+            System.out.println("       n, m: size of the domain");
+            System.out.println("       maxC: maximum number of clans, in [1, 6]");
+            System.out.println("       maxP: maximum power index, in [1, 9]");
+            System.out.println("       maxT: maximum time rounds");
+            return;
+        }
+        int n = Integer.parseInt(args[0]);
+        int m = Integer.parseInt(args[1]);
+        int maxC = Integer.parseInt(args[2]);
+        int maxP = Integer.parseInt(args[3]);
+        int maxT = Integer.parseInt(args[4]);
+        if (n <= 0 || m <= 0) return;
+        if (maxC <=0 || maxC > 6) return;
+        if (maxP <=0 || maxP > 9) return;
+        Domain d = new Domain(n, m, maxC, maxP);
+        for (int t = 0; t < maxT; t++) {
             System.out.println("time " + t);
-            /*System.out.println("event: "+d.topEvent().row+" "+d.topEvent().col);*/
-            d.print(1);
-            d.print(2);
-            d.emulate();
+            d.print();
+            if (!d.emulate()) break;
             System.out.println("----------");
         }
     }
