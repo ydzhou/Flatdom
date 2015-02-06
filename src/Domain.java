@@ -55,14 +55,21 @@ public class Domain {
             }
             d.add(tmp);
         }
-        
+
         /*List<Grid> tmp = new ArrayList<Grid>();*/
-        /*tmp.add(new Grid(1, 0));*/
-        /*tmp.add(new Grid(1, 5));*/
+        /*tmp.add(new Grid(1, 9));*/
+        /*tmp.add(new Grid(0, 9));*/
+        /*tmp.add(new Grid(1, 9));*/
         /*d.add(tmp);*/
         /*tmp = new ArrayList<Grid>();*/
-        /*tmp.add(new Grid(2, 3));*/
-        /*tmp.add(new Grid(2, 3));*/
+        /*tmp.add(new Grid(2, 9));*/
+        /*tmp.add(new Grid(1, 9));*/
+        /*tmp.add(new Grid(1, 9));*/
+        /*d.add(tmp);*/
+        /*tmp = new ArrayList<Grid>();*/
+        /*tmp.add(new Grid(0, 9));*/
+        /*tmp.add(new Grid(0, 9));*/
+        /*tmp.add(new Grid(0, 9));*/
         /*d.add(tmp);*/
         
         eventQueue = new HashedPriorityQueue<Event>(new Comparator<Event>(){
@@ -81,9 +88,9 @@ public class Domain {
             }
         }
 
-        List<Event> tmp = eventQueue.getHeap();
-        for (int i=1; i<tmp.size(); i++) {
-            System.out.print(tmp.get(i).getPoss() + " ");
+        List<Event> h = eventQueue.getHeap();
+        for (int i=1; i<h.size(); i++) {
+            System.out.print(h.get(i).getPoss() + " ");
         }
         System.out.println();
     }
@@ -94,18 +101,22 @@ public class Domain {
         // If the event with highest possibility is stay, then the domain remain stable.
         if (e.eve == 3) return false;
         System.out.println(e.row + " " + e.col + " " + event[e.eve]);
-        /*List<Event> tmp = eventQueue.getHeap();*/
-        /*for (int i=1; i<tmp.size(); i++) {*/
-        /*    System.out.print(tmp.get(i).getPoss() + " ");*/
-        /*}*/
-        /*System.out.println();*/
+        List<Event> tmp = eventQueue.getHeap();
+        for (int i=1; i<tmp.size(); i++) {
+            System.out.print(tmp.get(i).getPoss() + " ");
+        }
+        System.out.println();
         e.occurs();
         List<Grid> grids = e.getGrids();
         for (int i=0; i<grids.size(); i++) {
-            if (grids.get(i).color == 0) continue;
             gridEventMap.get(grids.get(i)).setPoss();
             eventQueue.update(gridEventMap.get(grids.get(i)));
         }
+        tmp = eventQueue.getHeap();
+        for (int i=1; i<tmp.size(); i++) {
+            System.out.print(tmp.get(i).getPoss() + " ");
+        }
+        System.out.println();
         return true;
     }
 }

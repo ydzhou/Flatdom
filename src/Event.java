@@ -17,8 +17,10 @@ public class Event {
     public List<Grid> grids;
 
     private final double warCoe = 1.0;
+    private final double warBaseCoe = 0.1;
     private final double devCoe = 2.0;
     private final double expCoe = 1.0;
+    private final double expBaseCoe = 0;
     private final double warMaxPower = (9);
     private final double devMaxPower = (4*9)+9;
     private final double expMaxPower= 9;
@@ -53,7 +55,7 @@ public class Event {
                     count[2] = i;
                 }
             } else {
-                if (power[0] > grids.get(i).power) {
+                if (power[0] >= grids.get(i).power) {
                     power[0] = grids.get(i).power;
                     count[0] = i;
                 }
@@ -62,11 +64,12 @@ public class Event {
         // Calculate possibility of each action 
         // war possibility: abs(diffPower - selfPower)
         /*System.out.println(row+ " "+col+": "+count[0]+" "+count[1]+" "+count[2]+" ");*/
-        if (count[0] != -1) poss[0] = (grids.get(0).power - power[0]) / warMaxPower * warCoe;
+        if (count[0] != -1) poss[0] = (grids.get(0).power - power[0]) / warMaxPower * warCoe + warBaseCoe;
         // develop possibility: (samePower + selfPower)
         if (count[1] != 0 && grids.get(0).power < 9) poss[1] = (grids.get(0).power + power[1]) / devMaxPower * devCoe;
         // explore possibility: (selfPower - neutPower)
-        if (count[2] != -1) poss[2] = (grids.get(0).power - power[2]) / expMaxPower * expCoe;
+        if (count[2] != -1) poss[2] = (grids.get(0).power - power[2]) / expMaxPower * expCoe + expBaseCoe;
+        /*System.out.println(row+ " "+col+": "+poss[0]+" "+poss[1]+" "+poss[2]+" ");*/
         double maxPoss = -1;
         for (int i=0; i<poss.length; i++) {
             if (maxPoss <= poss[i]) {
@@ -84,6 +87,7 @@ public class Event {
             case 0: // war
                 i = count[0];
                 casualty = grids.get(0).power - grids.get(i).power;
+                if (casualty == 0) casualty = grids.get(0).power/3;
                 grids.get(0).power -= ((casualty>grids.get(i).power ? grids.get(i).power : casualty) + 2);
                 grids.get(i).power -= (casualty>grids.get(i).power ? grids.get(i).power : casualty);
                 if (grids.get(i).power <= 0) {
