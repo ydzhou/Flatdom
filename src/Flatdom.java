@@ -27,10 +27,12 @@ public class Flatdom {
         if (maxP <=0 || maxP > 9) return;
         Domain d = new Domain(n, m, maxC, maxP);
         for (int t = 0; t < maxT; t++) {
-            System.out.println("time " + t);
-            d.print();
+            if (t % 10 == 0) {
+                System.out.println("time " + t);
+                d.print();
+                System.out.println("----------");
+            }
             if (!d.emulate()) break;
-            System.out.println("----------");
         }
     }
 }

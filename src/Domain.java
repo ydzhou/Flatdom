@@ -102,10 +102,10 @@ public class Domain {
         if (e.eve == 3) return false;
         System.out.println(e.row + " " + e.col + " " + event[e.eve]);
         List<Event> tmp = eventQueue.getHeap();
-        for (int i=1; i<tmp.size(); i++) {
-            System.out.print(tmp.get(i).getPoss() + " ");
-        }
-        System.out.println();
+        /*for (int i=1; i<tmp.size(); i++) {*/
+        /*    System.out.print(tmp.get(i).getPoss() + " ");*/
+        /*}*/
+        /*System.out.println();*/
         e.occurs();
         List<Grid> grids = e.getGrids();
         for (int i=0; i<grids.size(); i++) {
@@ -113,10 +113,10 @@ public class Domain {
             eventQueue.update(gridEventMap.get(grids.get(i)));
         }
         tmp = eventQueue.getHeap();
-        for (int i=1; i<tmp.size(); i++) {
-            System.out.print(tmp.get(i).getPoss() + " ");
-        }
-        System.out.println();
+        /*for (int i=1; i<tmp.size(); i++) {*/
+        /*    System.out.print(tmp.get(i).getPoss() + " ");*/
+        /*}*/
+        /*System.out.println();*/
         return true;
     }
 }
